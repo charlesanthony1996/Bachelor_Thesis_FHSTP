@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrap Metal Area Percentage</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .line {
+            fill: none;
+            stroke-width: 2;
+        }
+        .line.old {
+            stroke: steelblue;
+        }
+        .line.new {
+            stroke: orange;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align: left;margin-left:50px;margin-bottom:20px;">Percentage of Scrap Metal Against Week Numbers</h2>
+    <svg width="600" height="400"></svg>
+    <script>
+        // Data for the plot
+        const data = [
+            { week: 1, oldScrap: 15, newScrap: 7.5 },
+            { week: 2, oldScrap: 25, newScrap: 15 },
+            { week: 3, oldScrap: 20, newScrap: 15 },
+            { week: 4, oldScrap: 23.5, newScrap: 18.5 },
+            { week: 5, oldScrap: 11, newScrap: 6 },
+        ];
+
+        // Set up SVG and dimensions
+        const svg = d3.select("svg");
+        const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+        const width = +svg.attr("width") - margin.left - margin.right;
+        const height = +svg.attr("height") - margin.top - margin.bottom;
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Set up scales
+        const x = d3.scaleLinear()
+            .domain([1, d3.max(data, d => d.week)])
+            .range([0, width]);
+
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => Math.max(d.oldScrap, d.newScrap))])
+            .range([height, 0]);
+
+        // Define the line generators
+        const oldScrapLine = d3.line()
+            .x(d => x(d.week))
+            .y(d => y(d.oldScrap));
+
+        const newScrapLine = d3.line()
+            .x(d => x(d.week))
+            .y(d => y(d.newScrap));
+
+        // Add the X Axis
+        g.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x).ticks(data.length).tickFormat(d3.format("d")))
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", margin.bottom - 5)
+            .attr("fill", "#000")
+            .attr("font-size", "15px")
+            .style("text-anchor", "middle")
+            .text("Week Numbers");
+
+        // Add the Y Axis
+        g.append("g")
+            .call(d3.axisLeft(y))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", -margin.left + 15)
+            .attr("fill", "#000")
+            .attr("font-size", "15px")
+            .style("text-anchor", "middle")
+            .text("Percentage of scrap metal");
+
+        // Add the old scrap metal line
+        g.append("path")
+            .datum(data)
+            .attr("class", "line old")
+            .attr("d", oldScrapLine);
+
+        // Add the new scrap metal line
+        g.append("path")
+            .datum(data)
+            .attr("class", "line new")
+            .attr("d", newScrapLine);
+
+        // Add legend
+        const legend = svg.append("g")
+            .attr("transform", `translate(${width + margin.right - 100},${margin.top})`);
+
+        legend.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 10)
+            .attr("height", 10)
+            .attr("fill", "steelblue");
+
+        legend.append("text")
+            .attr("x", 20)
+            .attr("y", 10)
+            .text("Old Scrap Metal %");
+
+        legend.append("rect")
+            .attr("x", 0)
+            .attr("y", 20)
+            .attr("width", 10)
+            .attr("height", 10)
+            .attr("fill", "orange");
+
+        legend.append("text")
+            .attr("x", 20)
+            .attr("y", 30)
+            .text("New Scrap Metal %");
+    </script>
+</body>
+</html>
